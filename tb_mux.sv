@@ -1,15 +1,31 @@
 `timescale 1ns/1ps
 
-module tb_mux;
-   logic [2:0]count;
-   logic muxOut;
+module tb_mux4to1;
+    // Sinais para conectar ao MUX
+    logic [31:0] d0, d1, d2, d3;
+    logic [1:0]  sel;
+    logic [31:0] y;
 
-   mux dut(.f(muxOut), .a(count[2]), .b(count[1]), .sel(count[0]));
+    mux4to1_32bits dut (
+        .d0(d0), .d1(d1), .d2(d2), .d3(d3),
+        .sel(sel),
+        .y(y)
+    );
 
-   initial begin
-     $monitor($time,"a = %b | b = %b | sel = %b | muxOut = %b", count[2], count[1], count[0], muxOut);
-     for(count = 0; count != 3'b111; count++) #10;     
-     #10 $stop;
-   end
+    initial begin
+        d0 = 32'hAAAAAAAA; 
+        d1 = 32'hBBBBBBBB;
+        d2 = 32'hCCCCCCCC;
+        d3 = 32'hDDDDDDDD;
 
-endmodule: tb_mux
+        $display("Tempo | Sel | Saída Y");
+        $monitor("%4t |  %b  | %h", $time, sel, y);
+       
+        sel = 2'b00; #10; 
+        sel = 2'b01; #10; 
+        sel = 2'b10; #10; 
+        sel = 2'b11; #10; 
+
+        #10 $stop;
+    end
+endmodule
